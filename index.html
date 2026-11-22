@@ -93,7 +93,7 @@ function pr(x,y,a,sp,d,o){B.push(Object.assign({x,y,vx:Math.cos(a)*sp,vy:Math.si
 /* ---------- close-combat manual melee system ---------- */
 function doMelee(){
   if(S!='arena'||paused||P.mlT>0)return;
-  const cd=Math.max(.18,.42*(1-.03*(P.mlLv-1))*(P.cdr||1));
+  const cd=Math.max(.22,.50*(1-.04*(P.mlLv-1))*(P.cdr||1));
   P.mlT=cd;P.mlSw=.22;
   P.mlCombo=(P.mlCombo%3)+1;
   let ang;
@@ -179,7 +179,7 @@ const sw=P.ws.find(w=>w.id=='saw');if(sw){const c=2+sw.lv,rd=75+P.lvl*1.5;for(le
 function updArena(dt){
 let dx=(K.KeyD||K.ArrowRight?1:0)-(K.KeyA||K.ArrowLeft?1:0),dy=(K.KeyS||K.ArrowDown?1:0)-(K.KeyW||K.ArrowUp?1:0);const m=Math.hypot(dx,dy);P.mv=m?1:0;if(m){P.x+=dx/m*P.spd*dt;P.y+=dy/m*P.spd*dt;P.bob+=dt*12;if(dx)P.face=dx}
 P.x=Math.max(70,Math.min(W-70,P.x));P.y=Math.max(100,Math.min(H-70,P.y));P.inv-=dt;
-if(clearT==0){updWeapons(dt);spawnT-=dt;if(spawnLeft>0&&spawnT<=0&&E.length<PM.maxe){spawn();spawnLeft--;spawnT=Math.max(.08,.62-room*.012);if(R()<.45&&spawnLeft>0){spawn();spawnLeft--}}}
+if(clearT==0){updWeapons(dt);spawnT-=dt;if(spawnLeft>0&&spawnT<=0&&E.length<PM.maxe){spawn();spawnLeft--;spawnT=Math.max(.18,.78-room*.01);if(R()<.25&&spawnLeft>0){spawn();spawnLeft--}}}
 for(const e of E){if(e.dead)continue;const d=dist(e.x,e.y,P.x,P.y)||1,ux=(P.x-e.x)/d,uy=(P.y-e.y)/d,T=ET[e.t];e.hurt-=dt;e.ph+=dt*6;let sp=T.sp,vx=ux*sp,vy=uy*sp;e.cd-=dt;
 if(e.burn>0){e.burn-=dt;e.bt-=dt;if(e.bt<=0){e.bt=.25;dmgE(e,3*P.pdm*pMul(),0,0,0,'#ff8a2a')}}
 if(e.t=='sp'){if(e.dash>0){e.dash-=dt;vx=ux*480;vy=uy*480}else if(d<210&&e.cd<=0){e.dash=.34;e.cd=1.6}}
@@ -305,7 +305,7 @@ const FC=document.createElement('canvas');FC.width=W;FC.height=H;const FX=FC.get
 let OB=[],RN=[],Z=[],TR=[],TH=270,bossQ=[],altarOpen=false;const CASTCD=4.5;
 ET.boss={r:46,hp:2200,sp:0,dm:32,c:'#8a2a8a',xp:60,kb:.02};const BS={};for(const k in ET)BS[k]=ET[k].sp;
 const BN=[['Gravedigger Hulk','Keeper of the Pit'],['The Bloated Choir','Song of Rot'],['Rotmother','Brood Queen'],['Hollow Warden','Chain Reaper'],['Plaguebringer','Voice of Spores'],['Bone Colossus','Heap of the Fallen'],['Screaming Maw','Hunger Unending'],['Lord of Flies','Swarm Sovereign'],['Mutant Tyrant','Crown of Ruin'],['Apex Mutant Overlord','The Final Mutation']];
-const es=()=>1+P.lvl*.075+room*.13;
+const es=()=>1+P.lvl*.05+room*.09;
 function scaleET(){const m=1+Math.min(.6,P.lvl*.005);for(const k in ET)if(k!='boss')ET[k].sp=BS[k]*m}
 function res(o,x,y,r){if(o.w){const cx=Math.max(o.x,Math.min(x,o.x+o.w)),cy=Math.max(o.y,Math.min(y,o.y+o.h));let dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy);if(d<r){if(!d){dx=0;dy=-1;d=1}x=cx+dx/d*r;y=cy+dy/d*r}}else{let dx=x-o.x,dy=y-o.y,d=Math.hypot(dx,dy)||1;const m=o.r+r;if(d<m){x=o.x+dx/d*m;y=o.y+dy/d*m}}return[x,y]}
 function pushOut(a,r){for(const o of OB){const q=res(o,a.x,a.y,r);a.x=q[0];a.y=q[1]}}
@@ -441,11 +441,11 @@ $('bn').addEventListener('click',()=>{M.seen=1;saveMeta()});
 load=function(){return M.seen?1:null};save=function(){};
 $('bc').onclick=()=>{au();sfx.click();P=newPlayer();room=1;go(()=>{S='hub';P.x=200;P.y=420;showOv('')})};
 const _np=newPlayer;newPlayer=function(){const p=_np(),u=M.up;p.lvl=0;p.ws[0].lv=1+u.start;p.cdr=1-.04*u.spd;Object.assign(p,{sm:0,fr:0,sv:0,sg:0,shield:0,slT:0,frT:0,svT:0,mlT:0,mlSw:0,mlAng:0,mlCombo:0,mlLv:1});return p};
-scaleET=function(){const m=1.28+Math.min(.65,P.lvl*.007);for(const k in ET)if(k!='boss')ET[k].sp=BS[k]*m};
+scaleET=function(){const m=1.08+Math.min(.42,P.lvl*.004);for(const k in ET)if(k!='boss')ET[k].sp=BS[k]*m};
 addXp=function(){P.hp=Math.min(P.mh,P.hp+P.mh*.004)};
-startRoom=function(){room=P.lvl+1;const bs=room%10==0;spawnLeft=(bs?8:14)+room*3;RQ=spawnLeft+(bs?1:0);P.xp=0;spawnT=1;clearT=0;banner={t:2.4,s:bs?'BOSS ROOM '+room:'ROOM '+room};if(bs)spawnBoss(room/10)};
+startRoom=function(){room=P.lvl+1;const bs=room%10==0;spawnLeft=(bs?6:10)+room*2;RQ=spawnLeft+(bs?1:0);P.xp=0;spawnT=1;clearT=0;banner={t:2.4,s:bs?'BOSS ROOM '+room:'ROOM '+room};if(bs)spawnBoss(room/10)};
 function win(){S='over';const c=300;M.cores+=c;P.coreRun+=c;saveMeta();$('over').querySelector('h1').textContent='VICTORY';$('os').textContent='Level 100 · Apex Overlord slain · +'+P.coreRun+' cores this run';showOv('over');sfx.mut()}
-roomClear=function(){const c=2+Math.floor(P.lvl/3);M.cores+=c;P.coreRun+=c;saveMeta();ftx(P.x,P.y-60,'+'+c+' cores','#6ad7ff',1);P.lvl++;P.mh+=3;scaleET();P.hp=Math.min(P.mh,P.hp+P.mh*.08);
+roomClear=function(){const c=2+Math.floor(P.lvl/3);M.cores+=c;P.coreRun+=c;saveMeta();ftx(P.x,P.y-60,'+'+c+' cores','#6ad7ff',1);P.lvl++;P.mh+=3;scaleET();P.hp=Math.min(P.mh,P.hp+P.mh*.14);
 if(P.lvl==20){sfx.mut();shake=30;flash=1.2;burst(P.x,P.y,120,'#ff2e8a',500,1.2)}if(P.lvl>=100){win();return}B=B.filter(b=>!b.hostile);advance=true;pickQ=1;openPick2()};
 const _ea2=enterArena;enterArena=function(){_ea2();FZ=[];RG=[];advance=false;paused=false};
 const _sp=spawn;spawn=function(ft,px,py){const n=E.length;_sp(ft,px,py);const e=E[E.length-1];if(E.length>n&&e&&R()<.6)e.fl=R()<.5?1:-1};
@@ -455,11 +455,11 @@ for(const e of E){if(e.dead)continue;if(dist(e.x,e.y,P.x,P.y)<r+e.r){const a=Mat
 function doFrost(){if(S!='arena'||P.frT>0)return;P.frT=CD.frost*P.cdr;const[x,y]=tgt(210),r=125+P.fr*25;FZ.push({x,y,l:5,m:5,r,tk:0,d:5*pMul()*P.pdm*(1+.3*P.fr)});RG.push({x,y,r,l:.5,m:.5,c:'140,210,255'});burst(x,y,24,'#9ad7ff',220,.6);tone(900,.35,'sine',.07,-600)}
 function doSurge(){if(S!='arena'||P.svT>0)return;P.svT=CD.surge*P.cdr;P.sg=6+P.sv;P.shield=P.mh*(.25+.1*P.sv);RG.push({x:P.x,y:P.y,r:90,l:.5,m:.5,c:'125,255,74'});flash=.2;burst(P.x,P.y,30,'#7dff4a',250,.6);tone(200,.5,'sawtooth',.08,500);nz(.3,.06,2000)}
 const _dc=doCast;doCast=function(){if(!paused)_dc()};
-const _hp2=hurtP;hurtP=function(d){if(S!='arena')return;let f=d*1.85;const k=1+P.lvl*.03;if(P.shield>0&&P.inv<=0){const a=Math.min(P.shield,f*k);P.shield-=a;f-=a/k;ftx(P.x,P.y-40,'absorbed','#7dff4a');P.inv=Math.max(P.inv,.3);if(f<=.5)return}_hp2(f);if(S=='over')$('over').querySelector('h1').textContent='You turned'};
+const _hp2=hurtP;hurtP=function(d){if(S!='arena')return;let f=d*1.25;const k=1+P.lvl*.018;if(P.shield>0&&P.inv<=0){const a=Math.min(P.shield,f*k);P.shield-=a;f-=a/k;ftx(P.x,P.y-40,'absorbed','#7dff4a');P.inv=Math.max(P.inv,.3);if(f<=.5)return}_hp2(f);if(S=='over')$('over').querySelector('h1').textContent='You turned'};
 const _dm2=dmgE;dmgE=function(e,d,a,k,b,c){const was=e.dead;_dm2(e,d,a,k,b,c);if(P&&!was){if(P.sg>0)P.hp=Math.min(P.mh,P.hp+Math.min(d,e.mh)*(.06+.03*P.sv));if(e.dead)P.xp=Math.min(RQ,P.xp+1)}};
 const _uh2=updHub;updHub=function(dt){if(paused)return;_uh2(dt)};
 const _ub=updArena;updArena=function(dt){if(paused)return;if(advance){advance=false;startRoom()}
-P.mlT=Math.max(0,P.mlT-dt);P.mlSw=Math.max(0,P.mlSw-dt);if(md&&P.mlT<=0)doMelee();
+P.mlT=Math.max(0,P.mlT-dt);P.mlSw=Math.max(0,P.mlSw-dt);if(P.mlT<=0&&(md||(autoAim&&nearest(P.x,P.y,135))))doMelee();
 P.slT=Math.max(0,P.slT-dt);P.frT=Math.max(0,P.frT-dt);P.svT=Math.max(0,P.svT-dt);if(P.sg>0){P.sg-=dt;if(P.sg<=0)P.shield=0}for(const g of RG)g.l-=dt;cmp(RG,null,isDeadL);
 for(const e of E){e.sl=1;e.px=e.x;e.py=e.y;if(e.fz>0)e.fz-=dt;if(e.stun>0){e.stun-=dt;e.sl=0;e.cd=Math.max(e.cd,1.5);e.tel=0;e.dash=0}}
 for(const z of FZ){z.l-=dt;z.tk-=dt;for(const e of E){if(e.dead)continue;if(dist(e.x,e.y,z.x,z.y)<z.r+e.r){e.sl=Math.min(e.sl,e.t=='boss'?.6:Math.max(.12,.4-.09*P.fr));e.fz=.15;if(z.tk<=0)dmgE(e,z.d,0,0,0,'#9ad7ff')}}if(z.tk<=0)z.tk=.5}cmp(FZ,null,isDeadL);
