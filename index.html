@@ -280,7 +280,7 @@ function applyBoon(o){if(o.t=='w'){const w=P.ws.find(w=>w.id==o.id);if(w)w.lv++;
 function buildCards(){const pool=[],own=P.ws.map(w=>w.id);
 for(const id in WD){if(id=='bio'&&P.lvl<10)continue;if(own.includes(id)){if(P.ws.find(w=>w.id==id).lv<8)pool.push({t:'w',id,tx:'Upgrade '+WD[id].n,ds:'+18% damage, +8% fire rate (max Lv 8)'})}else if(P.ws.length<6)pool.push({t:'w',id,tx:'New: '+WD[id].n,ds:'Equip around your body'})}
 const a=(t,tx,ds,ok)=>ok&&pool.push({t,tx,ds});a('hp','Thick Hide','+20 max HP and a heal',1);a('sp','Adrenal Gland','+20 move speed',1);a('dm','Rage Serum','+6% all damage',1);a('dc','Phantom Step','+1 dash charge',P.dmax<3);a('bd','Razor Dash','Dashing through enemies cuts them',P.bd<4);a('bs','Shock Step','Dash ends in a shockwave',P.bs<3);a('cp','Gravity Well','Cast rune pulls enemies harder',P.cp<3);a('cx','Volatile Rune','Cast rune detonates bigger',P.cx<3);a('wl','Storm Overdrive','Overdrive calls lightning strikes',P.wl<3);a('sm','Seismic Slam','Slam: bigger radius, damage, longer stun',P.sm<3);a('fr','Deep Freeze','Frost field: wider, colder, harder hitting',P.fr<3);a('sv','Mutagenic Hunger','Surge: bigger shield, stronger leech',P.sv<3);
-const cs=$('cards');cs.innerHTML='';pool.sort(()=>R()-.5).slice(0,3).forEach(o=>{const d=document.createElement('div');d.className='cd';d.tabIndex=0;d.innerHTML='<b>'+o.tx+'</b><span>'+o.ds+'</span>';const ch=()=>{sfx.click();applyBoon(o);if(pickQ>0)openPick2();else{showOv('');S='arena';if(bossQ.length){spawnBoss(bossQ[bossQ.length-1]);bossQ=[]}}};d.onclick=ch;d.onkeydown=e=>{if(e.code=='Enter'||e.code=='Space')ch()};cs.appendChild(d)});
+const cs=$('cards');cs.innerHTML='';swPick(pool).forEach(o=>{const d=document.createElement('div');d.className='cd';d.tabIndex=0;d.innerHTML='<b>'+o.tx+'</b><span>'+o.ds+'</span>';const ch=()=>{sfx.click();applyBoon(o);if(pickQ>0)openPick2();else{showOv('');S='arena';if(bossQ.length){spawnBoss(bossQ[bossQ.length-1]);bossQ=[]}}};d.onclick=ch;d.onkeydown=e=>{if(e.code=='Enter'||e.code=='Space')ch()};cs.appendChild(d)});
 const rb=$('rrb');rb.style.display=P.rrl>0?'':'none';rb.textContent='Reroll ('+P.rrl+')'}
 $('rrb').onclick=()=>{if(P.rrl>0){P.rrl--;sfx.click();buildCards()}};
 /* altar */
@@ -341,7 +341,7 @@ $('bn').addEventListener('click',()=>{M.seen=1;saveMeta()});
 load=function(){return M.seen?1:null};save=function(){};
 $('bc').onclick=()=>{au();sfx.click();P=newPlayer();room=1;go(()=>{S='hub';P.x=200;P.y=420;showOv('')})};
 const _np=newPlayer;newPlayer=function(){const p=_np(),u=M.up;p.lvl=0;p.ws[0].lv=1+u.start;p.cdr=1-.04*u.spd;Object.assign(p,{sm:0,fr:0,sv:0,sg:0,shield:0,slT:0,frT:0,svT:0});return p};
-scaleET=function(){const m=1.2+Math.min(.6,P.lvl*.006);for(const k in ET)if(k!='boss')ET[k].sp=BS[k]*m};
+scaleET=function(){const m=1.2+Math.min(1.2,P.lvl*.012);for(const k in ET)if(k!='boss')ET[k].sp=BS[k]*m};
 addXp=function(){P.hp=Math.min(P.mh,P.hp+P.mh*.0015)};
 startRoom=function(){room=P.lvl+1;const bs=room%10==0;spawnLeft=waveTotal(room);RQ=spawnLeft+(bs?1:0);HZ.length=0;SQ.length=0;P.xp=0;spawnT=1;clearT=0;banner={t:2.4,s:bs?'BOSS ROOM '+room:'ROOM '+room};if(bs)spawnBoss(room/10)};
 function win(){S='over';const c=300;M.cores+=c;P.coreRun+=c;saveMeta();$('over').querySelector('h1').textContent='VICTORY';$('os').textContent='Level 100 · Apex Overlord slain · +'+P.coreRun+' cores this run';showOv('over');sfx.mut()}
@@ -497,7 +497,7 @@ P.x=Math.max(70,Math.min(W-70,P.x));P.y=Math.max(100,Math.min(H-70,P.y));pushOut
 /* ---- 10 new enemies ---- */
 const NE={bat:{r:11,hp:18,sp:150,dm:8,c:'#8a6adf',xp:2,kb:1.4},pod:{r:17,hp:70,sp:0,dm:6,c:'#7ab83a',xp:3,kb:.6},split:{r:21,hp:95,sp:58,dm:12,c:'#c46a8a',xp:3,kb:.5},shld:{r:19,hp:160,sp:50,dm:14,c:'#8a98b0',xp:4,kb:.3},mark:{r:13,hp:48,sp:0,dm:6,c:'#e0a040',xp:3,kb:1},lob:{r:15,hp:55,sp:0,dm:6,c:'#d86a3a',xp:3,kb:.9},rhino:{r:25,hp:220,sp:0,dm:24,c:'#6a7a5a',xp:6,kb:.2},coil:{r:17,hp:130,sp:0,dm:8,c:'#4ac8e8',xp:4,kb:.4},blink:{r:12,hp:42,sp:0,dm:18,c:'#c04ae8',xp:3,kb:1.2},necro:{r:15,hp:85,sp:0,dm:5,c:'#5a4a9a',xp:5,kb:.8},egg:{r:12,hp:24,sp:0,dm:0,c:'#c8d06a',xp:1,kb:.4}};
 for(const k in NE){ET[k]=NE[k];BS[k]=NE[k].sp}ET.boss.dm=0;
-const NSP={pod:48,mark:70,lob:62,rhino:42,coil:26,blink:78,necro:50},sp=k=>NSP[k]*(1.2+Math.min(.6,P.lvl*.006));
+const NSP={pod:48,mark:70,lob:62,rhino:42,coil:26,blink:78,necro:50},sp=k=>NSP[k]*(1.2+Math.min(1.2,P.lvl*.012));
 function mv(e,vx,vy,dt){const s=e.sl==null?1:e.sl;e.x=Math.max(50,Math.min(W-50,e.x+vx*dt*s));e.y=Math.max(80,Math.min(H-40,e.y+vy*dt*s));pushOut(e,e.r*.8)}
 function kite(e,dt,d,ux,uy,a,b,s){let vx,vy;if(d<a){vx=-ux*s*1.25;vy=-uy*s*1.25}else if(d>b){vx=ux*s;vy=uy*s}else{vx=-uy*s*.55;vy=ux*s*.55}mv(e,vx+(W/2-e.x)*.12,vy+(H/2-e.y)*.12,dt)}
 const NINIT={pod:e=>e.u1=rr(1,2.5),mark:e=>e.u1=rr(1.2,3),lob:e=>e.u1=rr(1,2.5),rhino:e=>e.u1=rr(1.5,3.5),coil:e=>e.u1=rr(1,2),blink:e=>e.u1=rr(1.5,3),necro:e=>e.u1=rr(2,4),egg:e=>e.u1=3.2+R()*.8,shld:e=>e.u1=Math.atan2(P.y-e.y,P.x-e.x)};
@@ -590,7 +590,7 @@ function initB(e,k){initE(e);e.k=k;const D=BD[k];e.name=D.n;e.title=D.t;e.cdn=1.
 spawnBoss=function(k){const D=BD[k],e=mkE('boss',W/2,130,ET.boss.hp*es()*D.hpm*(1+k*.15),D.r);initB(e,k);banner={t:3,s:D.n};shake=20;sfx.mut()};
 bossAI=function(e,dt){if(e.stun>0)return;const D=BD[e.k],dx=P.x-e.x,dy=P.y-e.y,d=Math.hypot(dx,dy)||1;e.cdn-=dt;e.lock-=dt;e.age+=dt;e.sayT-=dt;if(e.ghost>0)e.ghost-=dt;if(e.open>0)e.open-=dt;
 const ph=e.hp<e.mh*.33?2:e.hp<e.mh*.66?1:0;if(ph>e.pi){e.pi=ph;say(e,D.ph[ph-1],2.8);shake=Math.max(shake,14);burst(e.x,e.y,40,D.col,400,.7);if(D.op)D.op(e,ph)}
-if(e.dv&&e.dv.t>0){e.dv.t-=dt;e.x+=Math.cos(e.dv.a)*e.dv.s*dt;e.y+=Math.sin(e.dv.a)*e.dv.s*dt}else if(e.lock<=0||D.free)D.mv(e,dt,d,dx/d,dy/d);
+if(e.dv&&e.dv.t>0){e.dv.t-=dt;e.x+=Math.cos(e.dv.a)*e.dv.s*dt;e.y+=Math.sin(e.dv.a)*e.dv.s*dt}else if(e.lock<=0||D.free)D.mv(e,dt*(1+Math.min(.6,P.lvl*.006)),d,dx/d,dy/d);
 if(D.ex)D.ex(e,dt);if(e.lock<=0&&e.cdn<=0){const L=e.pi&&D.at2?D.at.concat(D.at2):D.at;e.sd=-e.sd;ATK[pick(L)](e)}
 if(!(e.ghost>0)&&d<e.r+14)hurtP(D.cdm);e.x=Math.max(60,Math.min(W-60,e.x));e.y=Math.max(95,Math.min(H-60,e.y))};
 const _bd5=bossDead;bossDead=function(e){killAll=true;_bd5(e);killAll=false;spawnLeft=0;HZ.length=0;SQ.length=0;B=B.filter(b=>!b.hostile);ftx(e.x,e.y-e.r-30,BD[e.k].die,'#fff',1);TX[TX.length-1].l=2.4};
@@ -645,6 +645,18 @@ if(e.hp<e.mh&&e.t!='egg'){X.fillStyle='#000a';X.fillRect(e.x-16,e.y-e.r-14,32,4)
 const _den6=drawEnemy;drawEnemy=function(e){if(e.t!='boss'&&!NE[e.t])return _den6(e);if(e.t=='boss')drawBoss(e);else drawNew(e);
 if(e.stun>0){X.strokeStyle='#ffe14a';X.lineWidth=2;X.beginPath();X.arc(e.x,e.y-e.r-8,6+Math.sin(tm*10)*2,0,TAU);X.stroke()}if(e.fz>0){X.fillStyle='rgba(120,200,255,.3)';X.beginPath();X.arc(e.x,e.y,e.r+3,0,TAU);X.fill()}};
 
+
+/* ---- melee swords ---- */
+WD.great={n:'Executioner Blade',cd:1.1,d:42,c:'#ff7a5a'};WD.rapier={n:'Ember Rapier',cd:.22,d:9,c:'#ffb84a'};
+const SW=['katana','great','rapier'];
+const _wd5=wDmg;wDmg=function(w){return _wd5(w)*(SW.includes(w.id)?1.35:1)};
+const _fw5=fireW;fireW=function(w,i,n){if(w.id!='great'&&w.id!='rapier')return _fw5(w,i,n);const[x,y]=slotPos(i,n),rg0=w.id=='great'?120+P.lvl*1.5:190+P.lvl*1.5;let ang;
+if(autoAim){const tg=nearest(x,y,rg0+40);if(!tg)return;ang=Math.atan2(tg.y-y,tg.x-x)}else{if(!E.length)return;ang=Math.atan2(my-y,mx-x)}
+w.cd=wCd(w);w.rec=.12;w.ang=ang;const d=wDmg(w);
+if(w.id=='great'){AR.push({k:'ring',x,y,r:rg0,l:.25,m:.25});AR.push({k:'slash',x,y,a:ang,r:rg0,l:.2,m:.2});sfx.boom();shake=Math.max(shake,6);for(const e of E)if(!e.dead&&dist(x,y,e.x,e.y)<rg0+e.r)dmgE(e,d,Math.atan2(e.y-y,e.x-x),3,0,'#ff7a5a')}
+else{const x2=x+Math.cos(ang)*rg0,y2=y+Math.sin(ang)*rg0;AR.push({k:'arc',x1:x,y1:y,x2,y2,l:.12,m:.12});sfx.slash();for(const e of E)if(!e.dead&&sd(e.x,e.y,x,y,x2,y2)<e.r+12)dmgE(e,d,ang,1.2,0,'#ffb84a')}
+for(const b of B)if(b.hs&&dist(x,y,b.x,b.y)<rg0){b.l=0;burst(b.x,b.y,6,'#fff',150,.3)}};
+function swPick(pool){const sw=pool.filter(o=>o.t=='w'&&SW.includes(o.id)),pk=pool.sort(()=>R()-.5).slice(0,3);if(sw.length&&!pk.some(o=>SW.includes(o.id))&&R()<.6)pk[2]=sw[Math.floor(R()*sw.length)];return pk}
 applySet();
 toMenu();requestAnimationFrame(tick);
 </script></body></html>
