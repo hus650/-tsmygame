@@ -650,12 +650,19 @@ if(e.stun>0){X.strokeStyle='#ffe14a';X.lineWidth=2;X.beginPath();X.arc(e.x,e.y-e
 WD.great={n:'Executioner Blade',cd:1.1,d:42,c:'#ff7a5a'};WD.rapier={n:'Ember Rapier',cd:.22,d:9,c:'#ffb84a'};
 const SW=['katana','great','rapier'];
 const _wd5=wDmg;wDmg=function(w){return _wd5(w)*(SW.includes(w.id)?1.35:1)};
-const _fw5=fireW;fireW=function(w,i,n){if(w.id!='great'&&w.id!='rapier')return _fw5(w,i,n);const[x,y]=slotPos(i,n),rg0=w.id=='great'?120+P.lvl*1.5:190+P.lvl*1.5;let ang;
-if(autoAim){const tg=nearest(x,y,rg0+40);if(!tg)return;ang=Math.atan2(tg.y-y,tg.x-x)}else{if(!E.length)return;ang=Math.atan2(my-y,mx-x)}
-w.cd=wCd(w);w.rec=.12;w.ang=ang;const d=wDmg(w);
-if(w.id=='great'){AR.push({k:'ring',x,y,r:rg0,l:.25,m:.25});AR.push({k:'slash',x,y,a:ang,r:rg0,l:.2,m:.2});sfx.boom();shake=Math.max(shake,6);for(const e of E)if(!e.dead&&dist(x,y,e.x,e.y)<rg0+e.r)dmgE(e,d,Math.atan2(e.y-y,e.x-x),3,0,'#ff7a5a')}
-else{const x2=x+Math.cos(ang)*rg0,y2=y+Math.sin(ang)*rg0;AR.push({k:'arc',x1:x,y1:y,x2,y2,l:.12,m:.12});sfx.slash();for(const e of E)if(!e.dead&&sd(e.x,e.y,x,y,x2,y2)<e.r+12)dmgE(e,d,ang,1.2,0,'#ffb84a')}
-for(const b of B)if(b.hs&&dist(x,y,b.x,b.y)<rg0){b.l=0;burst(b.x,b.y,6,'#fff',150,.3)}};
+let MAN=0,lm=false;
+const _fw5=fireW;fireW=function(w,i,n){if(!SW.includes(w.id))return _fw5(w,i,n);if(!MAN)return;
+const[x,y]=slotPos(i,n),ang=Math.atan2(my-y,mx-x),d=wDmg(w);w.cd=wCd(w);w.rec=.12;w.ang=ang;
+if(w.id=='great'){const rg=120+P.lvl*1.5;AR.push({k:'ring',x,y,r:rg,l:.25,m:.25});AR.push({k:'slash',x,y,a:ang,r:rg,l:.2,m:.2});sfx.boom();shake=Math.max(shake,6);for(const e of E)if(!e.dead&&dist(x,y,e.x,e.y)<rg+e.r)dmgE(e,d,Math.atan2(e.y-y,e.x-x),3,0,'#ff7a5a');swB(x,y,rg)}
+else if(w.id=='rapier'){const rg=190+P.lvl*1.5,x2=x+Math.cos(ang)*rg,y2=y+Math.sin(ang)*rg;AR.push({k:'arc',x1:x,y1:y,x2,y2,l:.12,m:.12});sfx.slash();for(const e of E)if(!e.dead&&sd(e.x,e.y,x,y,x2,y2)<e.r+12)dmgE(e,d,ang,1.2,0,'#ffb84a');swB(x,y,rg)}
+else{const rg=100+P.lvl*2;AR.push({k:'slash',x,y,a:ang,r:rg,l:.2,m:.2});sfx.slash();for(const e of E){if(e.dead)continue;const q=dist(x,y,e.x,e.y),da=Math.abs(((Math.atan2(e.y-y,e.x-x)-ang+Math.PI*3)%TAU)-Math.PI);if(q<rg+e.r&&da<1.1)dmgE(e,d,ang,1.5,0,'#c07aff')}swB(x,y,rg)}};
+function swB(x,y,rg){for(const b of B)if(b.hs&&dist(x,y,b.x,b.y)<rg){b.l=0;burst(b.x,b.y,6,'#fff',150,.3)}}
+function swing(){if(S!='arena'||paused)return;const n=P.ws.length;P.ws.forEach((w,i)=>{if(SW.includes(w.id)&&w.cd<=0){MAN=1;fireW(w,i,n);MAN=0}})}
+KD.swing='KeyX';KL.swing='Swing swords (also left click)';KB.swing=KB.swing||'KeyX';
+C.addEventListener('mousedown',e=>{if(e.button==0)lm=true});addEventListener('mouseup',e=>{if(e.button==0)lm=false});addEventListener('blur',()=>lm=false);
+const _u6=updArena;updArena=function(dt){if(!paused&&S=='arena'&&(lm||K[KB.swing]))swing();_u6(dt)};
+const sbt=document.createElement('div');sbt.className='tb big';sbt.style.setProperty('--c','#c07aff');sbt.innerHTML='<span>SWING</span>';sbt.addEventListener('pointerdown',e=>{e.preventDefault();au();if(!P||S!='arena'||paused)return;if(aimHeld){mx=P.x+AX*320;my=P.y+AY*320}else{const t=nearest(P.x,P.y,400);if(t){mx=t.x;my=t.y}else{mx=P.x+P.face*100;my=P.y}}swing()});$('tb').appendChild(sbt);
+const _hud6=drawHUD;drawHUD=function(){_hud6();if(S=='arena'&&P.ws.some(w=>SW.includes(w.id))){X.textAlign='center';X.font='700 16px "Barlow Condensed",sans-serif';X.fillStyle='#c07aff';X.fillText('SWORDS ARE MANUAL: aim with mouse, click / '+nm(KB.swing)+' to swing',W/2,H-14)}};
 function swPick(pool){const sw=pool.filter(o=>o.t=='w'&&SW.includes(o.id)),pk=pool.sort(()=>R()-.5).slice(0,3);if(sw.length&&!pk.some(o=>SW.includes(o.id))&&R()<.6)pk[2]=sw[Math.floor(R()*sw.length)];return pk}
 applySet();
 toMenu();requestAnimationFrame(tick);
